@@ -27,11 +27,29 @@ public class LocalVariableProvider {
                 for (LookupElementBuilder variable : letBind.getVariables()) {
                     if (! completions.contains(variable.getLookupString())) {
                         completions.add(variable.getLookupString());
-                        currentElements.add(variable);
+                        currentElements.add(variable.withIcon(RustIcons.ICON_VARIABLE));
                     }
                 }
             }
+        } else if (psiElement instanceof RustFnItem) {
+            RustFnArgs arguments = ((RustFnItem) psiElement).getFnDeclaration().getFnArgs();
+
+            if (arguments != null) {
+                RustLetArgs letArgs = arguments.getLetArgs();
+                for (RustLetBind binding : letArgs.getLetBindList()) {
+                    for (LookupElementBuilder variable : binding.getVariables()) {
+                        if (! completions.contains(variable.getLookupString())) {
+                            completions.add(variable.getLookupString());
+                            currentElements.add(variable.withIcon(RustIcons.ICON_PARAM));
+                        }
+                    }
+                }
+
+
+            }
         }
+
+
 
         PsiElement parent = psiElement.getParent();
         if (parent == null) {

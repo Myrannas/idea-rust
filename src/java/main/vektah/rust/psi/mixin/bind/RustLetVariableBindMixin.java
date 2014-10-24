@@ -21,7 +21,7 @@ public abstract class RustLetVariableBindMixin extends RustLetImpl implements Ru
         RustType type = getType();
 
         if (type != null) {
-            element.withTypeText(type.getText());
+            element = element.withTypeText(type.getText());
         }
 
         return ImmutableList.of(element);

@@ -25,7 +25,7 @@ public class RustIcons {
     public static final Icon ICON_ENUM = PlatformIcons.ENUM_ICON;
     public static final Icon ICON_PROPERTY = PlatformIcons.PROPERTY_ICON;
     public static final Icon ICON_VARIABLE = PlatformIcons.VARIABLE_ICON;
-            ;
+    public static final Icon ICON_PARAM = PlatformIcons.PARAMETER_ICON;
 
     @Nullable
     public static Icon forNode(PsiElement psiElement) {
