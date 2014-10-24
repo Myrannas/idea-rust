@@ -17,13 +17,15 @@ public class RustIcons {
     // TODO: Replace the following items with proper icons
     public static final Icon ICON_MODULE = PlatformIcons.PACKAGE_ICON;
     public static final Icon ICON_STRUCT = PlatformIcons.CLASS_ICON;
-    private static final Icon ICON_METHOD = PlatformIcons.METHOD_ICON;
-    private static final Icon ICON_FUNCTION = PlatformIcons.FUNCTION_ICON;
-    private static final Icon ICON_IMPL = PlatformIcons.CLASS_ICON;
-    private static final Icon ICON_TRAIT = PlatformIcons.INTERFACE_ICON;
-    private static final Icon ICON_STATIC = PlatformIcons.VARIABLE_ICON;
-    private static final Icon ICON_ENUM = PlatformIcons.ENUM_ICON;
-    private static final Icon ICON_PROPERTY = PlatformIcons.PROPERTY_ICON;
+    public static final Icon ICON_METHOD = PlatformIcons.METHOD_ICON;
+    public static final Icon ICON_FUNCTION = PlatformIcons.FUNCTION_ICON;
+    public static final Icon ICON_IMPL = PlatformIcons.CLASS_ICON;
+    public static final Icon ICON_TRAIT = PlatformIcons.INTERFACE_ICON;
+    public static final Icon ICON_STATIC = PlatformIcons.VARIABLE_ICON;
+    public static final Icon ICON_ENUM = PlatformIcons.ENUM_ICON;
+    public static final Icon ICON_PROPERTY = PlatformIcons.PROPERTY_ICON;
+    public static final Icon ICON_VARIABLE = PlatformIcons.VARIABLE_ICON;
+            ;
 
     @Nullable
     public static Icon forNode(PsiElement psiElement) {

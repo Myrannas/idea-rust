@@ -35,6 +35,6 @@ public abstract class RustStructPropertyMixin extends RustItemImpl implements Ru
     @Nullable
     @Override
     public PsiElement getNameIdentifier() {
-        return getLetVariableBind().getItemName();
+        return getLetVariableBind().getVariableSignature().getItemName();
     }
 }

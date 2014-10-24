@@ -119,7 +119,7 @@ item ::= mod_item
 	| impl_item
 	| extern_item {extends="vektah.rust.psi.mixin.item.RustItemMixin" implements="com.intellij.psi.PsiNamedElement"}
 
-itemName ::= IDENTIFIER
+item_name ::= IDENTIFIER {implements="com.intellij.psi.PsiNamedElement" extends="vektah.rust.psi.mixin.RustItemNameMixin"}
 
 // AGGREGATE TYPES
 private numeric_literal ::= '-'? (BIN_LIT | OCT_LIT | HEX_LIT | DEC_LIT)
@@ -355,7 +355,7 @@ private use_part ::= (IDENTIFIER | 'super' | 'self')
 
 // FUNCTIONS
 fn_item ::= (comment | attribute)* fn_declaration statement_block {mixin="vektah.rust.psi.mixin.item.RustFnItemMixin"}
-fn_declaration ::= visibility? 'unsafe'? 'fn' itemName generic_params? fn_args ['->' return_type] {pin=3 recoverWhile="function_recover" }
+fn_declaration ::= visibility? 'unsafe'? 'fn' item_name generic_params? fn_args ['->' return_type] {pin=3 recoverWhile="function_recover" }
 fn_args ::= '(' let_args ')'
 private return_type ::= type | '!'
 private function_recover ::= !('{'|';')
@@ -377,7 +377,7 @@ return_statement ::= 'return' expr? ';'?
 empty_statement ::= ';'
 
 // STRUCTS
-struct_item ::= visibility? 'struct' itemName generic_params? struct_body {mixin="vektah.rust.psi.mixin.item.RustStructItemMixin"}
+struct_item ::= visibility? 'struct' item_name generic_params? struct_body {mixin="vektah.rust.psi.mixin.item.RustStructItemMixin"}
 struct_body ::= struct_body_empty | struct_body_block | struct_body_tuple
 
 struct_body_block ::= '{' [struct_property (',' struct_property)* ','? (comment | attribute)*] '}' {pin=1}
@@ -391,7 +391,7 @@ struct_body_empty ::= ';'
 
 
 // ENUMS
-enum_item ::= visibility? 'enum' itemName generic_params? '{' enum_body '}' {pin=2 mixin="vektah.rust.psi.mixin.item.RustEnumItemMixin"}
+enum_item ::= visibility? 'enum' item_name generic_params? '{' enum_body '}' {pin=2 mixin="vektah.rust.psi.mixin.item.RustEnumItemMixin"}
 enum_body ::= [ enum_variant (',' enum_variant)* ','? (comment | attribute)* ]
 enum_variant ::= enum_variant_nullary | enum_variant_tuple | enum_variant_struct
 enum_variant_nullary ::= (comment | attribute)* IDENTIFIER !('(' | '{') ['=' expr]
@@ -408,7 +408,7 @@ impl_body ::= fn_item* {recoverWhile="not_close_brace"}
 
 
 // TRAITS
-trait_item ::= visibility? 'trait' generic_params? itemName generic_params? trait_implements? '{' (trait_function_declaration (';' | statement_block) )* (comment|attribute)* '}' {pin=2}
+trait_item ::= visibility? 'trait' generic_params? item_name generic_params? trait_implements? '{' (trait_function_declaration (';' | statement_block) )* (comment|attribute)* '}' {pin=2}
 trait_implements ::= ':' type ('+' type)* {recoverWhile="not_open_brace"}
 trait_function_declaration ::= (comment | attribute)* visibility? 'unsafe'? 'fn' IDENTIFIER generic_params? '(' prototype_args ','? '...'? ')' ['->' return_type] {pin=4 recoverWhile="not_semicolon_or_open_brace" }
 
@@ -428,12 +428,12 @@ let ::= 'let' let_bind ['=' (expr | statement_block)] ';'?
 
 // let args are used by function and closure implementations and of course let. A single param here is considered a type
 let_args ::= [ let_bind ( ',' let_bind)* ','? ]
-let_bind ::= let_tuple_bind | let_struct_bind | let_variable_bind | let_unit_bind | let_self_arg
-let_variable_bind ::= variable_signature [':' type]
-let_tuple_bind ::= ref* type_basic? '(' let_bind (',' let_bind)* ','? ')' [':' type]
-let_struct_bind ::= type '{' struct_bind_member (',' struct_bind_member )* ','? '..'? ','? '}' [':' type]
+let_bind ::= let_tuple_bind | let_struct_bind | let_variable_bind | let_unit_bind | let_self_arg_bind {implements="vektah.rust.psi.mixin.bind.LetBindWithCompletions" mixin="vektah.rust.psi.mixin.bind.RustLetBindMixin"}
+let_variable_bind ::= variable_signature [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetVariableBindMixin"}
+let_tuple_bind ::= ref* type_basic? '(' let_bind (',' let_bind)* ','? ')' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetTupleBindMixin"}
+let_struct_bind ::= type '{' struct_bind_member (',' struct_bind_member )* ','? '..'? ','? '}' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetStructBindMixin"}
 let_unit_bind ::= '(' ')'
-let_self_arg ::= ref? 'mut'? '~'? 'self'
+let_self_arg_bind ::= ref? 'mut'? '~'? 'self'
 
 // Prototype args are used by closure definitions, externs and trait declarations of functions. A single param here is
 // considered an identifier
@@ -444,8 +444,8 @@ prototype_tuple_arg ::= ref* type_basic? '(' prototype_arg (',' prototype_arg)* 
 prototype_struct_arg ::= type '{' struct_bind_member (',' struct_bind_member )* ','? '..'? ','? '}' [':' type]
 prototype_self_arg ::= ref? 'mut'? '~'? 'self'
 
-private struct_bind_member ::= IDENTIFIER ':' variable_signature | variable_signature
-private variable_signature ::= 'ref'? ref? 'mut'? itemName
+struct_bind_member ::= item_name ':' variable_signature | variable_signature
+variable_signature ::= 'ref'? ref? 'mut'? item_name
 
 
 // ATTRIBUTES
@@ -468,11 +468,11 @@ private mod_contents ::= ( use
 
 
 // STATIC
-static_item ::= (comment | attribute)* visibility? 'static' 'mut'? itemName ':' type '=' expr ';' {pin=3 mixin="vektah.rust.psi.mixin.item.RustStaticItemMixin"}
+static_item ::= (comment | attribute)* visibility? 'static' 'mut'? item_name ':' type '=' expr ';' {pin=3 mixin="vektah.rust.psi.mixin.item.RustStaticItemMixin"}
 
 
 // TYPE
-type_item ::= (comment | attribute)* visibility? 'type' itemName generic_params? '=' type ';' {pin=3 mixin="vektah.rust.psi.mixin.item.RustTypeItemMixin"}
+type_item ::= (comment | attribute)* visibility? 'type' item_name generic_params? '=' type ';' {pin=3 mixin="vektah.rust.psi.mixin.item.RustTypeItemMixin"}
 
 
 // MACRO
