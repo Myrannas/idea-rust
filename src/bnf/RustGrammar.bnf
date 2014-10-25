@@ -254,7 +254,7 @@ if_tail ::= ('else' 'if' expr statement_block)* ['else' statement_block]
 expr_paren ::= '(' expr expr_tuple_body? ')'
 expr_tuple_body ::= ',' [expr (',' expr)*]
 expr_value ::= literal
-expr_identifier ::= IDENTIFIER
+expr_identifier ::= IDENTIFIER {mixin="vektah.rust.psi.mixin.expr.RustExprIdentifierMixin"}
 expr_struct_initializer ::= expr '{' struct_initializer_list [',' struct_default?] "}"
 struct_default ::= '..' expr
 struct_initializer_list ::= IDENTIFIER ':' expr (',' IDENTIFIER ':' expr)*
@@ -316,7 +316,7 @@ expr_break ::= 'break' lifetime?
 
 
 // TYPES
-expr_path ::= '::'? ('self' '::' | 'super' '::')* IDENTIFIER ('::' (IDENTIFIER | generic))*
+expr_path ::= '::'? ('self' '::' | 'super' '::')* IDENTIFIER ('::' (IDENTIFIER | generic))* {mixin="vektah.rust.psi.mixin.expr.RustExprPathMixin"}
 type ::= type_basic | type_vector | type_tuple | type_closure | type_function | type_proc | type_unit
 
 private type_modifiers ::= ( ref | lifetime | '*' | 'mut' | '*' 'mut' | '@' | '~' | '$' | 'box')*
