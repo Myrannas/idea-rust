@@ -9,10 +9,10 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import vektah.rust.RustIcons;
-import vektah.rust.psi.RustLetSelfArg;
+import vektah.rust.psi.RustLetSelfArgBind;
 import vektah.rust.psi.impl.RustLetBindImpl;
 
-public abstract class RustLetSelfBindMixin extends RustLetBindImpl implements RustLetSelfArg, PsiNamedElement {
+public abstract class RustLetSelfBindMixin extends RustLetBindImpl implements RustLetSelfArgBind, PsiNamedElement {
     public RustLetSelfBindMixin(ASTNode node) {
         super(node);
     }

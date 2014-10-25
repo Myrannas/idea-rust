@@ -433,7 +433,7 @@ let_variable_bind ::= variable_signature [':' type] {mixin="vektah.rust.psi.mixi
 let_tuple_bind ::= ref* type_basic? '(' let_bind (',' let_bind)* ','? ')' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetTupleBindMixin"}
 let_struct_bind ::= type '{' struct_bind_member (',' struct_bind_member )* ','? '..'? ','? '}' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetStructBindMixin"}
 let_unit_bind ::= '(' ')'
-let_self_arg_bind ::= ref? 'mut'? '~'? 'self'
+let_self_arg_bind ::= ref? 'mut'? '~'? 'self' {mixin = "vektah.rust.psi.mixin.bind.RustLetSelfBindMixin"}
 
 // Prototype args are used by closure definitions, externs and trait declarations of functions. A single param here is
 // considered an identifier
