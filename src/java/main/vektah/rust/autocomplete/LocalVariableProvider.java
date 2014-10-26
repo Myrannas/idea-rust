@@ -43,7 +43,7 @@ public class LocalVariableProvider {
         return findVariablesInScope(parent, completions, currentElements);
     }
 
-    public static PsiReference findVariableInScope(PsiElement psiElement) {
+    public static PsiReference findVariableInScope(final PsiElement psiElement) {
         return new PsiReferenceBase<PsiElement>(psiElement, TextRange.from(0, psiElement.getTextLength())) {
             @Nullable
             @Override
@@ -75,37 +75,63 @@ public class LocalVariableProvider {
 
     private static FluentIterable<RustLetBind> findBindings(FluentIterable<PsiElement> psiElement) {
         return psiElement
-                .filter(p -> p instanceof RustStatementBlock || p instanceof RustFnItem)
-                .transformAndConcat(p -> {
-                    if (p instanceof RustStatementBlock) {
-                        return FluentIterable.from(((RustStatementBlock) p).getLetList())
-                                .transform(RustLet::getLetBind);
-                    } else {
-                        RustFnArgs fnArgs = ((RustFnItem) p).getFnDeclaration().getFnArgs();
-                        if (fnArgs != null) {
-                            return FluentIterable.from(fnArgs.getLetArgs().getLetBindList());
+                .filter(isOfType(RustStatementBlock.class, RustFnItem.class))
+                .transformAndConcat(new Function<PsiElement, Iterable<? extends RustLetBind>>() {
+                    @Override
+                    public Iterable<? extends RustLetBind> apply(PsiElement psiElement) {
+                        if (psiElement instanceof RustStatementBlock) {
+                            return FluentIterable.from(((RustStatementBlock) psiElement).getLetList())
+                                    .transform(new Function<RustLet, RustLetBind>() {
+                                        @Override
+                                        public RustLetBind apply(RustLet rustLet) {
+                                            return rustLet.getLetBind();
+                                        }
+                                    });
+                        } else {
+                            RustFnArgs fnArgs = ((RustFnItem) psiElement).getFnDeclaration().getFnArgs();
+                            if (fnArgs != null) {
+                                return FluentIterable.from(fnArgs.getLetArgs().getLetBindList());
+                            }
+                            return Collections.emptyList();
                         }
-                        return Collections.emptyList();
                     }
                 });
     }
 
-    private static FluentIterable<PsiElement> findAscendants(PsiElement psiElement) {
-        return FluentIterable.from(() -> new Iterator<PsiElement>() {
-            PsiElement element = psiElement;
-
+    private static Predicate<PsiElement> isOfType(final Class<?>... classes) {
+        return new Predicate<PsiElement>() {
             @Override
-            public boolean hasNext() {
-                return element.getParent() != null;
+            public boolean apply(PsiElement psiElement) {
+                for (Class<?> aClass : classes) {
+                    if (aClass.isInstance(psiElement)) return true;
+                }
+
+                return false;
             }
+        };
+    }
 
+    private static FluentIterable<PsiElement> findAscendants(final PsiElement psiElement) {
+        return FluentIterable.from(new Iterable<PsiElement>() {
             @Override
-            public PsiElement next() {
-                PsiElement next = element;
+            public Iterator<PsiElement> iterator() {
+                return new Iterator<PsiElement>() {
+                    PsiElement element = psiElement;
 
-                element = element.getParent();
+                    @Override
+                    public boolean hasNext() {
+                        return element.getParent() != null;
+                    }
 
-                return next;
+                    @Override
+                    public PsiElement next() {
+                        PsiElement next = element;
+
+                        element = element.getParent();
+
+                        return next;
+                    }
+                };
             }
         });
     }
