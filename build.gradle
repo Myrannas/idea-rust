@@ -1,0 +1,105 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+def intellij_libs = fileTree(dir: libraries_intellij + "lib/", include: '*.jar')
+def intellij_plugins = libraries_intellij + "plugins/"
+
+dependencies {
+	println 'Compiling classes, using intelliJ at ' + intellij_libs
+        compile files('src/flex/JFlex.jar')
+	compile intellij_libs
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/java/main'
+			srcDir 'gen'
+			srcDir 'src/flex'
+		}
+		resources {
+			srcDir 'src/java/main/'
+			include '**/*.properties'
+			include '**/*.png'
+		}
+	}
+    test {
+        java {
+            srcDir 'src/java/test'
+        }
+        resources {
+            srcDir 'src/rust/test'
+            include '**/*.properties'
+            include '**/*.png'
+        }
+    }
+}
+
+// Build grammar
+task grammar(type: JavaExec) {
+    main = "org.intellij.grammar.Main"
+    classpath = intellij_libs.plus(files(file("grammar-kit.jar")))
+    args = ["gen", "src${File.separator}bnf${File.separator}RustGrammar.bnf"]
+}
+
+tasks.compileJava.dependsOn(grammar)
+
+// Generate Lexer
+task generateLexerFromGrammar(type: JavaExec) {
+    main = "org.intellij.grammar.Main"
+    classpath = intellij_libs.plus(files(file("grammar-kit.jar")))
+    args = ["gen", "src${File.separator}bnf${File.separator}RustGrammar.bnf"]
+}
+
+// Build Lexer
+task generateLexer(type: JavaExec) {
+    main = "JFlex.main"
+    classpath = intellij_libs.plus(files(file("src/flex/JFlex.jar")))
+    args = ["--skel", "src/flex/idea-flex.skeleton", "src/flex/vektah/rust/RustLexer.flex"]
+}
+
+tasks.compileJava.dependsOn(grammar)
+
+tasks.withType(Test) {
+    systemProperty 'rust.source', rust_source
+}
+
+
+
+
+
+jar {
+	from ("META-INF") { include 'plugin.xml' into "META-INF" }
+}
+
+task copyIntoIdea(dependsOn: build, type: Copy) {
+    into "build/run/plugins/"
+    from jar.archivePath
+}
+
+task runIdea(dependsOn: copyIntoIdea) << {
+    ant.java(classname:"com.intellij.idea.Main", fork:true, spawn:true, classpath:intellij_libs.plus(files("$System.env.JAVA_HOME/lib/tools.jar")).asPath) {
+        sysproperty(key:"idea.config.path",value:"build/run/config")
+        sysproperty(key:"idea.system.path",value:"build/run/system")
+        sysproperty(key:"idea.plugins.path",value:"build/run/plugins")
+        sysproperty(key:"idea.platform.prefix",value:"Idea")
+        sysproperty(key:"idea.launcher.port",value:"8998")
+        sysproperty(key:"idea.launcher.bin.path",value:libraries_intellij + "bin/")
+    }
+}
+
+task debugIdea(dependsOn: copyIntoIdea) << {
+    ant.java(classname:"com.intellij.idea.Main", fork:true, spawn: true, classpath:intellij_libs.plus(files("$System.env.JAVA_HOME/lib/tools.jar")).asPath) {
+        sysproperty(key:"idea.config.path",value:"build/run/config")
+        sysproperty(key:"idea.system.path",value:"build/run/system")
+        sysproperty(key:"idea.plugins.path",value:"build/run/plugins")
+        sysproperty(key:"idea.platform.prefix",value:"Idea")
+        sysproperty(key:"idea.launcher.port",value:"8998")
+        sysproperty(key:"idea.launcher.bin.path",value:libraries_intellij + "bin/")
+        jvmarg(value:'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
+    }
+}
+
+
