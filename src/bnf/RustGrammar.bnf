@@ -134,7 +134,7 @@ private not_close_brace ::= !'}'
 private not_semicolon ::= !';'
 private not_semicolon_or_open_brace ::= !('{' | ';')
 
-visibility ::= 'priv' | 'pub'
+visibility ::= 'priv' | 'pub' {methods = [public="KW_PUB" private="KW_PRIV"]}
 
 // EXPRESSIONS! - this is based heavily https://github.com/JetBrains/Grammar-Kit/blob/master/HOWTO.md
 // These are in increasing order of precedence  (opposite of rust manual)
@@ -169,7 +169,7 @@ expr_bitwise_or ::= expr '|' expr
 // Need to break out of this expression parser before recursing here, otherwise the priorities will be off
 expr_index ::= expr '[' index_expr ']'
 index_expr ::= expr
-expr_field ::= expr '.' expr
+expr_field ::= expr '.' expr {methods = [left = "expr[0]" right = "expr[1]"]}
 
 expr_borrow ::= '&' lifetime? 'mut'? expr
 
@@ -317,12 +317,15 @@ expr_break ::= 'break' lifetime?
 
 // TYPES
 expr_path ::= '::'? ('self' '::' | 'super' '::')* IDENTIFIER ('::' (IDENTIFIER | generic))* {mixin="vektah.rust.psi.mixin.expr.RustExprPathMixin"}
-type ::= type_basic | type_vector | type_tuple | type_closure | type_function | type_proc | type_unit
+type ::= type_basic | type_vector | type_tuple | type_closure | type_function | type_proc | type_unit {
+    mixin="vektah.rust.psi.mixin.type.RustTypeMixin"
+    implements="vektah.rust.psi.mixin.type.RustTypeBase"
+}
 
 private type_modifiers ::= ( ref | lifetime | '*' | 'mut' | '*' 'mut' | '@' | '~' | '$' | 'box')*
 type_basic ::= type_modifiers type_path
 type_vector ::= type_modifiers '[' type [',' '..' expr] ']'
-type_tuple ::= ref? '(' 'ref'? type (',' 'ref'? type)* ','? ')'
+type_tuple ::= ref? '(' 'ref'? type (',' 'ref'? type)* ','? ')' { mixin = "vektah.rust.psi.mixin.type.RustTypeTupleMixin"}
 type_function ::= ref? 'unsafe'? ['extern' STRING_LIT?] 'fn' trait_bounds? fn_prototype_args ['->' return_type]
 fn_prototype_args ::= '(' prototype_args ')'
 type_closure ::= ['<'lifetime'>'] closure_prototype_args [':' lifetime] ['->' return_type]
@@ -333,6 +336,7 @@ type_unit ::= ref? '*'? 'mut'? '@'? '(' ')'
 private type_path ::= '::'? ('self' '::' | 'super' '::')* IDENTIFIER ('::' IDENTIFIER)* '::'? generic? trait_bounds?
 ref ::= '&'+ lifetime?
 lifetime ::= "'" (IDENTIFIER | 'static')
+mutable ::= 'mut'
 
 
 // GENERIC PARAM LIST eg function<A>(...)
@@ -428,7 +432,7 @@ let ::= 'let' let_bind ['=' (expr | statement_block)] ';'?
 
 // let args are used by function and closure implementations and of course let. A single param here is considered a type
 let_args ::= [ let_bind ( ',' let_bind)* ','? ]
-let_bind ::= let_tuple_bind | let_struct_bind | let_variable_bind | let_unit_bind | let_self_arg_bind {implements="vektah.rust.psi.mixin.bind.LetBindWithCompletions" mixin="vektah.rust.psi.mixin.bind.RustLetBindMixin"}
+let_bind ::= let_struct_bind | let_variable_bind | let_tuple_bind | let_unit_bind | let_self_arg_bind {implements="vektah.rust.psi.mixin.bind.LetBindWithCompletions" mixin="vektah.rust.psi.mixin.bind.RustLetBindMixin"}
 let_variable_bind ::= variable_signature [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetVariableBindMixin"}
 let_tuple_bind ::= ref* type_basic? '(' let_bind (',' let_bind)* ','? ')' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetTupleBindMixin"}
 let_struct_bind ::= type '{' struct_bind_member (',' struct_bind_member )* ','? '..'? ','? '}' [':' type] {mixin="vektah.rust.psi.mixin.bind.RustLetStructBindMixin"}
@@ -445,7 +449,7 @@ prototype_struct_arg ::= type '{' struct_bind_member (',' struct_bind_member )* 
 prototype_self_arg ::= ref? 'mut'? '~'? 'self'
 
 struct_bind_member ::= item_name ':' variable_signature | variable_signature
-variable_signature ::= 'ref'? ref? 'mut'? item_name
+variable_signature ::= 'ref'? ref? 'mut'? item_name {mixin = "vektah.rust.psi.mixin.bind.RustVariableSignatureMixin" implements="vektah.rust.psi.mixin.bind.RustVariableSignatureBase"}
 
 
 // ATTRIBUTES

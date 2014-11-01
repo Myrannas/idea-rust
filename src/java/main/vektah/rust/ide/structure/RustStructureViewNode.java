@@ -46,5 +46,7 @@ class RustStructureViewNode extends PsiTreeElementBase<PsiNamedElement> {
         return psiElement.getName();
     }
 
-
+    public boolean isLeaf() {
+        return ! (psiElement instanceof HasStructureViewChildren);
+    }
 }

@@ -8,11 +8,12 @@ import vektah.rust.psi.RustItemName;
 import vektah.rust.psi.RustLetStructBind;
 import vektah.rust.psi.RustStructBindMember;
 import vektah.rust.psi.RustVariableSignature;
+import vektah.rust.psi.impl.RustLetBindImpl;
 import vektah.rust.psi.impl.RustLetImpl;
 
 import java.util.List;
 
-public abstract class RustLetStructBindMixin extends RustLetImpl implements RustLetStructBind {
+public abstract class RustLetStructBindMixin extends RustLetBindImpl implements RustLetStructBind {
     public RustLetStructBindMixin(ASTNode node) {
         super(node);
     }

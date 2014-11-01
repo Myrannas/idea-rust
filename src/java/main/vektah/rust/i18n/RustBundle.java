@@ -3,9 +3,12 @@ package vektah.rust.i18n;
 import com.intellij.CommonBundle;
 import com.intellij.reference.SoftReference;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.lang.ref.Reference;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 public class RustBundle {

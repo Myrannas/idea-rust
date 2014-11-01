@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import vektah.rust.ide.structure.HasStructureViewChildren;
 import vektah.rust.psi.RustImplItem;
 import vektah.rust.psi.RustType;
-import vektah.rust.psi.impl.RustItemImpl;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -42,5 +42,13 @@ public abstract class RustImplItemMixin extends RustItemImpl implements RustImpl
         }
 
         return getImplBlock().getImplBody().getFnItemList();
+    }
+
+    public TypeInformation getTypeInformation() {
+        if (getType() != null) {
+            return getType().getTypeInformation();
+        } else {
+            return UnknownType.INSTANCE;
+        }
     }
 }

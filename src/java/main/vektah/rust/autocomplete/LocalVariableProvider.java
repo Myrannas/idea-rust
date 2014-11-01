@@ -1,30 +1,30 @@
 package vektah.rust.autocomplete;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import vektah.rust.RustIcons;
 import vektah.rust.psi.*;
-import vektah.rust.psi.mixin.expr.RustExprIdentifierMixin;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static vektah.rust.psi.TreeUtil.findAscendants;
+import static vektah.rust.psi.TreeUtil.isOfType;
 
 public class LocalVariableProvider {
-    public static Iterable<LookupElement> findVariablesInScope(PsiElement psiElement) {
-        return findVariablesInScope(psiElement, new HashSet<String>(), ImmutableList.<LookupElement>builder());
-    }
-
-    private static Iterable<LookupElement> findVariablesInScope(PsiElement psiElement, Set<String> completions, ImmutableList.Builder<LookupElement> currentElements) {
+    public static Iterable<LookupElement> findVariablesInScope(@NotNull PsiElement psiElement) {
+        Set<String> completions = new HashSet<String>();
+        ImmutableList.Builder<LookupElement> currentElements = ImmutableList.builder();
 
         for (RustLetBind letBind : findBindings(findAscendants(psiElement))) {
             for (LookupElementBuilder variable : letBind.getVariables()) {
@@ -35,15 +35,10 @@ public class LocalVariableProvider {
             }
         }
 
-        PsiElement parent = psiElement.getParent();
-        if (parent == null) {
-            return currentElements.build();
-        }
-
-        return findVariablesInScope(parent, completions, currentElements);
+        return currentElements.build();
     }
 
-    public static PsiReference findVariableInScope(final PsiElement psiElement) {
+    public static PsiReference findVariableInScope(@NotNull final PsiElement psiElement) {
         return new PsiReferenceBase<PsiElement>(psiElement, TextRange.from(0, psiElement.getTextLength())) {
             @Nullable
             @Override
@@ -98,42 +93,6 @@ public class LocalVariableProvider {
                 });
     }
 
-    private static Predicate<PsiElement> isOfType(final Class<?>... classes) {
-        return new Predicate<PsiElement>() {
-            @Override
-            public boolean apply(PsiElement psiElement) {
-                for (Class<?> aClass : classes) {
-                    if (aClass.isInstance(psiElement)) return true;
-                }
 
-                return false;
-            }
-        };
-    }
-
-    private static FluentIterable<PsiElement> findAscendants(final PsiElement psiElement) {
-        return FluentIterable.from(new Iterable<PsiElement>() {
-            @Override
-            public Iterator<PsiElement> iterator() {
-                return new Iterator<PsiElement>() {
-                    PsiElement element = psiElement;
-
-                    @Override
-                    public boolean hasNext() {
-                        return element.getParent() != null;
-                    }
-
-                    @Override
-                    public PsiElement next() {
-                        PsiElement next = element;
-
-                        element = element.getParent();
-
-                        return next;
-                    }
-                };
-            }
-        });
-    }
 
 }

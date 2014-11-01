@@ -37,9 +37,10 @@
       <lang.psiStructureViewFactory implementationClass="vektah.rust.ide.structure.RustStructureViewFactory" language="Rust"/>
 
       <completion.contributor language="Rust" implementationClass="vektah.rust.autocomplete.LocalVariableCompletionContributor"/>
-
+      <completion.contributor language="Rust" implementationClass="vektah.rust.autocomplete.TypeMemberCompletionContributor"/>
       <lang.commenter language="Rust" implementationClass="vektah.rust.highlight.RustCommenter"/>
       <lang.braceMatcher language="Rust" implementationClass="vektah.rust.highlight.RustBraceMatcher"/>
+      <codeInsight.parameterInfo language="Rust" implementationClass="vektah.rust.psi.RustParameterInformation"/>
 
       <codeStyleSettingsProvider implementation="vektah.rust.ide.RustCodeStyleSettingsProvider"/>
       <langCodeStyleSettingsProvider implementation="vektah.rust.ide.RustLanguageCodeStyleSettingsProvider"/>
