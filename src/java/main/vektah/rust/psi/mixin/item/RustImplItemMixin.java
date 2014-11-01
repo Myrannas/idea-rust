@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import vektah.rust.ide.structure.HasStructureViewChildren;
 import vektah.rust.psi.RustImplItem;
 import vektah.rust.psi.RustType;
+import vektah.rust.psi.TypeInformation;
+import vektah.rust.psi.impl.RustItemImpl;
+import vektah.rust.psi.types.UnknownType;
 
 
 import java.util.Collections;
