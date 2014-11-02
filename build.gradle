@@ -59,19 +59,14 @@ task generateLexer(type: JavaExec) {
     classpath = intellij_libs.plus(files(file("src/flex/JFlex.jar")))
     args = ["-sliceandcharat", "--skel", "src/flex/idea-flex.skeleton", "src/flex/vektah/rust/RustLexer.flex"]
 }
-
 tasks.compileJava.dependsOn(grammar, generateLexer)
 
 tasks.withType(Test) {
     systemProperty 'rust.source', rust_source
 }
 
-
-
-
-
 jar {
-	from ("META-INF") { include 'plugin.xml' into "META-INF" }
+	from ("META-INF") { include 'plugin.xml' into "META-INF" filter {String line -> $System.env.BUILD_NUMBER != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-$System.env.BUILD_NUMBER</version") : line} }
 }
 
 task copyIntoIdea(dependsOn: build, type: Copy) {
@@ -100,6 +95,10 @@ task debugIdea(dependsOn: copyIntoIdea) << {
         sysproperty(key:"idea.launcher.bin.path",value:libraries_intellij + "bin/")
         jvmarg(value:'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
     }
+}
+
+task publish(type: Copy) {
+
 }
 
 
