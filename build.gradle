@@ -55,12 +55,12 @@ task generateLexerFromGrammar(type: JavaExec) {
 
 // Build Lexer
 task generateLexer(type: JavaExec) {
-    main = "JFlex.main"
+    main = "JFlex.Main"
     classpath = intellij_libs.plus(files(file("src/flex/JFlex.jar")))
-    args = ["--skel", "src/flex/idea-flex.skeleton", "src/flex/vektah/rust/RustLexer.flex"]
+    args = ["-sliceandcharat", "--skel", "src/flex/idea-flex.skeleton", "src/flex/vektah/rust/RustLexer.flex"]
 }
 
-tasks.compileJava.dependsOn(grammar)
+tasks.compileJava.dependsOn(grammar, generateLexer)
 
 tasks.withType(Test) {
     systemProperty 'rust.source', rust_source
