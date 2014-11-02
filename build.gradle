@@ -67,7 +67,7 @@ tasks.withType(Test) {
 
 jar {
     def buildNumber = System.env.BUILD_NUMBER.toInteger()
-	from ("META-INF") { include 'plugin.xml' into "META-INF" filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version") : line} }
+	from ("META-INF") { include 'plugin.xml' into "META-INF" filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version>") : line} }
 }
 
 task copyIntoIdea(dependsOn: build, type: Copy) {
@@ -103,7 +103,7 @@ task copyPluginVersion(type:Copy) {
     def buildNumber = System.env.BUILD_NUMBER.toInteger()
     into ("/var/www/html")
     from ("META-INF/plugin.xml")
-    filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version") : line}
+    filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version>") : line}
 }
 
 task copyArtifact(type:Copy, dependsOn: build) {
