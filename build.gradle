@@ -98,8 +98,14 @@ task debugIdea(dependsOn: copyIntoIdea) << {
     }
 }
 
-task publish(type: Copy) {
-
+//For CI / publishing
+task copyPluginVersion(type:Copy) {
+    into ("/var/www")
+    from ("META-INF") { include 'plugin.xml' into "META-INF" filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version") : line} }
 }
 
+task copyArtifact(type:Copy, dependsOn: build) {
+    into ("/var/www")
+    from jar.archivePath
+}
 
