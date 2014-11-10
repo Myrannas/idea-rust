@@ -7,6 +7,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
@@ -61,14 +62,20 @@ public class TypeUtil {
         };
     }
 
-    public static PsiReference getTypeReference(final String name, final PsiElement element) {
+    public static PsiReference getTypeReference(final String name, final PsiElement element, final String[] path) {
         return new PsiReferenceBase<PsiElement>(element, TextRange.from(0, element.getTextLength())) {
 
             @Nullable
             @Override
             public PsiElement resolve() {
-                return findAscendants(element)
-                        .filter(isOfType(RustFile.class, RustStatementBlock.class))
+                RustFile activePackage;
+                if (path.length > 0) {
+                    activePackage = PackageUtil.findPackage(element, path).or((RustFile) element.getContainingFile());
+                } else {
+                    activePackage = (RustFile) element.getContainingFile();
+                }
+
+                return FluentIterable.from(ImmutableList.of(activePackage))
                         .transformAndConcat(findTypes())
                         .filter(isTypeDeclaration())
                         .filter(isNamed(name))

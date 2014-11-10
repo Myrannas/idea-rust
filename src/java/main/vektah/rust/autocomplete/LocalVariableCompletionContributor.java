@@ -16,7 +16,8 @@ public class LocalVariableCompletionContributor extends CompletionContributor {
 
         if (position == null) {
             shouldProvideCompletions = false;
-        } else if (position.getPrevSibling() instanceof RustExprField) {
+        } else if (position.getPrevSibling() instanceof RustExprField ||
+                (position.getPrevSibling() != null && position.getPrevSibling().getText().equals("."))) {
             shouldProvideCompletions = false;
         }
 

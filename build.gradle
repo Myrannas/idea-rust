@@ -1,10 +1,23 @@
 apply plugin: 'java'
+apply plugin: 'idea'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 def intellij_libs = fileTree(dir: libraries_intellij + "lib/", include: '*.jar')
 def intellij_plugins = libraries_intellij + "plugins/"
+
+idea {
+  module {
+    iml {
+      withXml {
+        def node = it.node
+        node.@type = "PLUGIN_MODULE"
+	node.@version = "4"
+      }
+    }
+  }
+}
 
 dependencies {
 	println 'Compiling classes, using intelliJ at ' + intellij_libs
@@ -66,7 +79,7 @@ tasks.withType(Test) {
 }
 
 jar {
-    def buildNumber = System.env.BUILD_NUMBER.toInteger()
+    def buildNumber = System.env.BUILD_NUMBER?.toInteger()
 	from ("META-INF") { include 'plugin.xml' into "META-INF" filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version>") : line} }
 }
 
@@ -100,7 +113,7 @@ task debugIdea(dependsOn: copyIntoIdea) << {
 
 //For CI / publishing
 task copyPluginVersion(type:Copy) {
-    def buildNumber = System.env.BUILD_NUMBER.toInteger()
+    def buildNumber = System.env.BUILD_NUMBER?.toInteger()
     into ("/var/www/html")
     from ("META-INF/plugin.xml")
     filter {String line -> buildNumber != null ? line.replaceAll("<version>(.+)</version>","<version>\$1-${String.format("%08d",buildNumber)}</version>") : line}

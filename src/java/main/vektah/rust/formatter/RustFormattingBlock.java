@@ -35,7 +35,9 @@ public class RustFormattingBlock extends AbstractBlock {
 		FN_PROTOTYPE_ARGS,
 		EXPR_CALL,
 		EXTERN_BLOCK,
-		MATCH_BLOCK
+		MATCH_BLOCK,
+        STRUCT_BODY_BLOCK,
+        IMPL_BLOCK
 	);
 	public static final TokenSet CURLY_CONTAINERS = TokenSet.create(
 		STATEMENT_BLOCK, STRUCT_BODY_BLOCK, IMPL_BLOCK, MACRO_BRACE, MATCH_BLOCK

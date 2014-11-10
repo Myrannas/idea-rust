@@ -59,4 +59,9 @@ public class StructField implements TypeInstance {
                 && visibility.getPublic() != null;
 
     }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
 }

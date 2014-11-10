@@ -69,7 +69,10 @@ public class RustIndentProcessor {
 			return Indent.getNormalIndent();
 		}
 
-		if (parentType == STATEMENT_BLOCK || parentType == MATCH_ARM) {
+		if (parentType == STATEMENT_BLOCK ||
+                parentType == MATCH_ARM ||
+                parentType == STRUCT_BODY_BLOCK ||
+                parentType == IMPL_BLOCK) {
 			if (elementType == OPEN_BRACE || elementType == CLOSE_BRACE) {
 				return Indent.getNoneIndent();
 			}

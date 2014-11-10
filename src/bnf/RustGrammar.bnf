@@ -323,7 +323,7 @@ type ::= type_basic | type_vector | type_tuple | type_closure | type_function | 
 }
 
 private type_modifiers ::= ( ref | lifetime | '*' | 'mut' | '*' 'mut' | '@' | '~' | '$' | 'box')*
-type_basic ::= type_modifiers type_path
+type_basic ::= type_modifiers type_path {mixin = "vektah.rust.psi.mixin.type.RustBasicTypeMixin"}
 type_vector ::= type_modifiers '[' type [',' '..' expr] ']'
 type_tuple ::= ref? '(' 'ref'? type (',' 'ref'? type)* ','? ')' { mixin = "vektah.rust.psi.mixin.type.RustTypeTupleMixin"}
 type_function ::= ref? 'unsafe'? ['extern' STRING_LIT?] 'fn' trait_bounds? fn_prototype_args ['->' return_type]

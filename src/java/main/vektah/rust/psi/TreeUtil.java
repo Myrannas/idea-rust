@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ public class TreeUtil {
 
                     @Override
                     public boolean hasNext() {
-                        return element != null;
+                        return element != null && ! (element instanceof VirtualFile);
                     }
 
                     @Override

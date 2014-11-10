@@ -113,4 +113,14 @@ public class ImplFn implements TypeInstance {
         RustVisibility visibility = rustFnItem.getFnDeclaration().getVisibility();
         return visibility != null && visibility.getPublic() != null;
     }
+
+    @Override
+    public boolean isStatic() {
+        List<RustLetBind> fnArgs = rustFnItem.getFnDeclaration()
+                .getFnArgs()
+                .getLetArgs()
+                .getLetBindList();
+
+        return fnArgs.size() == 0 || ! (fnArgs.get(0) instanceof RustLetSelfArgBind);
+    }
 }

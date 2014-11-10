@@ -1,6 +1,7 @@
 package vektah.rust.psi.types;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import vektah.rust.psi.*;
@@ -15,6 +16,8 @@ public class ExpressionUtil {
 
                 if (member.isPresent()) {
                     return member.get().getInformation();
+                } else {
+                    return typeInformation;
                 }
 
             } else {
@@ -51,6 +54,39 @@ public class ExpressionUtil {
                     }
                 }
             }
+        } else if (expr instanceof RustExprValue) {
+            String text = expr.getText();
+
+            if ("self".equals(text)) {
+                Optional<PsiElement> selfType = TreeUtil.findAscendants(expr)
+                        .firstMatch(new Predicate<PsiElement>() {
+                            @Override
+                            public boolean apply(PsiElement psiElement) {
+                                return psiElement instanceof RustImplItem
+                                        || psiElement instanceof RustTraitItem;
+                            }
+                        });
+
+                if (selfType.isPresent()) {
+                    PsiElement self = selfType.get();
+
+                    if (self instanceof RustImplItem) {
+                        RustImplItem selfImpl = (RustImplItem) self;
+
+                        if (selfImpl.getImplFor() != null) {
+                            return selfImpl.getImplFor()
+                                    .getType()
+                                    .getTypeInformation();
+                        }
+
+                        RustType type = selfImpl.getType();
+                        if (type != null) {
+                            return type.getTypeInformation();
+                        }
+                    }
+                }
+            }
+
         }
         return UnknownType.INSTANCE;
     }

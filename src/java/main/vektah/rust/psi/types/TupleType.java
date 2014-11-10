@@ -99,5 +99,10 @@ public class TupleType implements TypeInformation {
         public boolean isPublic() {
             return true;
         }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
     }
 }

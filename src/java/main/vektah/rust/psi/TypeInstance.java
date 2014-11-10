@@ -8,4 +8,5 @@ public interface TypeInstance {
     public TypeInformation getInformation();
     public boolean isMutable();
     public boolean isPublic();
+    public boolean isStatic();
 }
